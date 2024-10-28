@@ -6,6 +6,7 @@ This module contains the authentication handlers for Requests.
 """
 
 import hashlib
+from argon2 import PasswordHasher
 import os
 import re
 import threading
@@ -142,20 +143,24 @@ class HTTPDigestAuth(AuthBase):
         # lambdas assume digest modules are imported at the top level
         if _algorithm == "MD5" or _algorithm == "MD5-SESS":
 
-            def md5_utf8(x):
+            ph = PasswordHasher()
+
+            def argon2_utf8(x):
                 if isinstance(x, str):
                     x = x.encode("utf-8")
-                return hashlib.md5(x).hexdigest()
+                return ph.hash(x)
 
-            hash_utf8 = md5_utf8
+            hash_utf8 = argon2_utf8
         elif _algorithm == "SHA":
 
-            def sha_utf8(x):
+            ph = PasswordHasher()
+
+            def argon2_utf8(x):
                 if isinstance(x, str):
                     x = x.encode("utf-8")
-                return hashlib.sha1(x).hexdigest()
+                return ph.hash(x)
 
-            hash_utf8 = sha_utf8
+            hash_utf8 = argon2_utf8
         elif _algorithm == "SHA-256":
 
             def sha256_utf8(x):
@@ -166,12 +171,14 @@ class HTTPDigestAuth(AuthBase):
             hash_utf8 = sha256_utf8
         elif _algorithm == "SHA-512":
 
-            def sha512_utf8(x):
+            ph = PasswordHasher()
+
+            def argon2_utf8(x):
                 if isinstance(x, str):
                     x = x.encode("utf-8")
-                return hashlib.sha512(x).hexdigest()
+                return ph.hash(x)
 
-            hash_utf8 = sha512_utf8
+            hash_utf8 = argon2_utf8
 
         KD = lambda s, d: hash_utf8(f"{s}:{d}")  # noqa:E731
 
