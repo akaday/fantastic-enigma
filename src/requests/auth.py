@@ -163,12 +163,14 @@ class HTTPDigestAuth(AuthBase):
             hash_utf8 = argon2_utf8
         elif _algorithm == "SHA-256":
 
-            def sha256_utf8(x):
+            ph = PasswordHasher()
+
+            def argon2_utf8(x):
                 if isinstance(x, str):
                     x = x.encode("utf-8")
-                return hashlib.sha256(x).hexdigest()
+                return ph.hash(x)
 
-            hash_utf8 = sha256_utf8
+            hash_utf8 = argon2_utf8
         elif _algorithm == "SHA-512":
 
             ph = PasswordHasher()
